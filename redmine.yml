@@ -1,0 +1,75 @@
+version: '3'
+
+networks:
+  backend: 
+    driver: overlay
+
+volumes:
+  # persistent volume for redmine uploads
+  redmine_files:
+    driver: convoy
+  # persistent volume for redmine public
+  redmine_public:
+    driver: convoy
+
+services: 
+  redmine:
+    # use redmine:latest image from docker hub
+    image: birthday1:5000/redmine
+    # setup redmine environment
+    # see https://hub.docker.com/_/redmine/
+    environment:
+      - REDMINE_DB_MYSQL=bday_db
+      - REDMINE_DB_USERNAME=redmine
+      - REDMINE_DB_PASSWORD=r3dmin3
+    depends_on:
+      - db
+    # use persinstent volume for file uploads
+    # make public folder accessable for nginx
+    volumes:
+      - redmine_files:/usr/src/redmine/files
+      - redmine_public:/usr/src/redmine/public
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    # build nginx with Dockerfile in ./nginx
+    # see https://hub.docker.com/_/nginx/
+    image: birthday1:5000/nginx
+    # map localhost:8080 to nginx:80
+    ports:
+      - 80:80
+    depends_on:
+      - redmine
+    # access public volume from redmine
+    volumes:
+      - redmine_public:/usr/src/redmine/public
+    networks:
+      - backend
+    depends_on:
+      - redmine
+    deploy:
+      mode: global
+      #replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3

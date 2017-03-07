@@ -1,0 +1,27 @@
+version: '3'
+
+volumes:
+  # persistent volume for registry images
+  registry:
+
+services: 
+  portainer:
+    image: portainer/portainer
+    ports:
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  registry:
+    restart: always
+    build: registry
+    #container_name: domo_registry
+    ports:
+    - 5000:5000
+    volumes:
+      - registry:/var/lib/registry
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/ || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
