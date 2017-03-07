@@ -7,10 +7,6 @@ networks:
 services: 
   db:
     image: colinmollenhour/mariadb-galera-swarm
-    #build: 
-    #  context: galera
-    #  args:
-    #    MYSQL_ROOT_PASSWORD: s3cr3t
     environment:
       - XTRABACKUP_PASSWORD=s3cr3t
       - CLUSTER_NAME=db
