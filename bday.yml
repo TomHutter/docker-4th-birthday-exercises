@@ -17,7 +17,7 @@ volumes:
 services: 
   redmine:
     # use redmine:latest image from docker hub
-    image: birthday1:5000/redmine
+    image: birthday1:5000/redmine:1.0
     build: redmine
     # setup redmine environment
     # see https://hub.docker.com/_/redmine/
@@ -50,9 +50,9 @@ services:
   nginx:
     # build nginx with Dockerfile in ./nginx
     # see https://hub.docker.com/_/nginx/
-    image: birthday1:5000/nginx
+    image: birthday1:5000/nginx:1.0
     build: nginx
-    # map localhost:8080 to nginx:80
+    # map localhost:80 to nginx:80
     ports:
       - 80:80
     depends_on:
@@ -80,7 +80,7 @@ services:
 
   db:
     # use mysql 5 image from docker hub
-    image: birthday_mysql
+    image: birthday_mysql:1.0
     build: mysql
     # setup mysql environment
     # see https://hub.docker.com/_/mysql/
