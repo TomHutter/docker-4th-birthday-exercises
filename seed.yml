@@ -6,7 +6,7 @@ networks:
 
 services: 
   galera-seed:
-    image: mariadb-galera-swarm
+    image: mariadb-galera-swarm:1.0
     build: 
       context: galera
       args:
